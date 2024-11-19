@@ -1,0 +1,8 @@
+CASE
+    WHEN SUBSTRING(fqdn, 1, 8) IN ('chrxnclh', 'clmascmv', 'gnbqnc1', 'gnvlscmz', 'grnrncjb', 'knvntn76', 'nchrscpl', 'rlghncor', 'whcktn04') THEN 'cartn'
+    WHEN SUBSTRING(fqdn, 1, 8) IN ('schztxce', 'elsstx13', 'shptlawr', 'lbcntxap') THEN 'ctx'
+    WHEN SUBSTRING(fqdn, 1, 8) IN ('jcvoflxz', 'jptrflgn', 'orlhfl01', 'pmbrfltf', 'ptcyflbk') THEN 'fl'
+    WHEN SUBSTRING(fqdn, 1, 8) IN ('alprgagq', 'brhoaltb', 'dlthgagq', 'macngayq') THEN 'gaal'
+    WHEN SUBSTRING(fqdn, 1, 7) IN ('welktx', 'rchltx') THEN 'wb'
+    ELSE 'unknown'
+END AS region
