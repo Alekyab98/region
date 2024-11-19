@@ -1,0 +1,252 @@
+CREATE OR REPLACE PROCEDURE ${aether_5g_core_module_tgt_dataset_name}.aether_amf_performance_sp(
+    process_ts STRING,
+    trans_ts STRING,
+    window_hour INT64,
+    window_interval INT64
+)
+OPTIONS(strict_mode=False)
+BEGIN
+  -- Insert entry into the audit table
+  MERGE `${target_project_id}.${audit_tgt_dataset_name}.${audit_target_tblname}` tgt
+  USING (
+    SELECT
+      CONCAT("5g core amf hourly process") AS prc_name,
+      SAFE_CAST(trans_ts AS DATETIME) AS start_time,
+      SAFE_CAST(SPLIT(trans_ts, ' ')[OFFSET(0)] AS DATE) AS src_prc_dt
+  ) src
+  ON (src.prc_name = tgt.PROCESS_NAME AND src.START_TIME = tgt.START_TIME)
+  WHEN NOT MATCHED THEN
+  INSERT (
+    PROCESS_MODULE,
+    SCHEDULER,
+    PROCESS_NAME,
+    SOURCE_NAME,
+    TARGET_NAME,
+    START_TIME,
+    END_TIME,
+    PROCESS_DT,
+    NUM_RECORDS_AFFECTED,
+    STATUS,
+    RETURN_MESSAGE
+  )
+  VALUES (
+    "aether",
+    "airflow",
+    prc_name,
+    "${aether_5g_core_module_src_project_id}.${aether_5g_core_module_src_dataset_name}.${aether_5g_core_module_src_amf_tblname}",
+    "${aether_5g_core_module_tgt_project_id}.${aether_5g_core_module_tgt_dataset_name}.${aether_5g_core_module_tgt_amf_tblname}",
+    start_time,
+    NULL,
+    src_prc_dt,
+    NULL,
+    "Started",
+    NULL
+  );
+
+  -- Merge into target table
+  MERGE `${aether_5g_core_module_tgt_project_id}.${aether_5g_core_module_tgt_dataset_name}.${aether_5g_core_module_tgt_amf_tblname}` tgt
+  USING (
+    SELECT
+      event_time,
+      "ericsson" AS vendor,
+      fqdn,
+      -- Add region mapping logic here
+      CASE
+        WHEN REGEXP_CONTAINS(fqdn, 'chrxnclh.*|clmascmv.*|gnbqnc15.*|gnvlscmz.*|grnrncjb.*|knvntn76.*|nchrscpl.*|rlghncor.*|whcktn04.*') THEN 'cartn'
+        WHEN REGEXP_CONTAINS(fqdn, 'schztxce.*|elsstx13.*|shptlawr.*|lbcntxap.*') THEN 'ctx'
+        WHEN REGEXP_CONTAINS(fqdn, 'jcvoflxz.*|jptrflgn.*|orlhfl01.*|pmbrfltf.*|ptcyflbk.*') THEN 'fl'
+        WHEN REGEXP_CONTAINS(fqdn, 'alprgagq.*|brhoaltb.*|dlthgagq.*|macngayq.*') THEN 'gaal'
+        -- Add all other mappings here
+        WHEN REGEXP_CONTAINS(fqdn, 'welktx.*|rchltx.*') THEN 'wb'
+        ELSE 'unknown'
+      END AS region,
+      KEY AS metric_name,
+      SAFE_CAST(increase_value AS BIGNUMERIC) AS metric_increase_value,
+      SAFE_CAST(sum_value AS BIGNUMERIC) AS metric_sum_value,
+      trans_dt,
+      DATETIME(process_ts) AS schedule_time,
+      CURRENT_TIMESTAMP() AS updated_timestamp
+    FROM (
+      -- Main query logic remains unchanged
+      WITH event_timestamps AS (
+        SELECT DISTINCT
+          DATETIME_TRUNC(TIMESTAMP(`timestamp`), HOUR) AS trans_hr
+        FROM
+          `${aether_5g_core_module_src_project_id}.${aether_5g_core_module_src_dataset_name}.${aether_5g_core_module_src_amf_tblname}`
+        WHERE
+          DATETIME_TRUNC(TIMESTAMP(insert_date_utc), HOUR) IN UNNEST(
+            GENERATE_TIMESTAMP_ARRAY(
+              TIMESTAMP_SUB(DATETIME_TRUNC(TIMESTAMP(trans_ts), HOUR), INTERVAL window_interval - 1 HOUR),
+              DATETIME_TRUNC(TIMESTAMP(trans_ts), HOUR),
+              INTERVAL window_hour HOUR
+            )
+          )
+          AND trans_dt IS NOT NULL
+      ),
+      -- Base data preparation
+      base_data AS (
+        SELECT
+          *,
+          MD5(labels) AS checksum
+        FROM (
+          SELECT DISTINCT
+            TIMESTAMP_SECONDS(
+              CAST(FLOOR(UNIX_SECONDS(`timestamp`) / (window_hour * 60 * 60)) * (window_hour * 60 * 60) AS INT64)
+            ) AS event_time,
+            fqdn,
+            TO_JSON_STRING(JSON_REMOVE(SAFE.PARSE_JSON(labels), '$.__name__', '$.jobid', '$.localdn')) AS labels,
+            JSON_VALUE(labels, '$.instance') AS instance,
+            LOWER(name) AS KEY,
+            SAFE_CAST(NULLIF(value, 'NaN') AS FLOAT64) AS value,
+            DATE(`timestamp`) AS trans_dt,
+            `timestamp`
+          FROM
+            `${aether_5g_core_module_src_project_id}.${aether_5g_core_module_src_dataset_name}.${aether_5g_core_module_src_amf_tblname}`
+          WHERE
+            DATETIME_TRUNC(TIMESTAMP(`timestamp`), HOUR) IN (SELECT trans_hr FROM event_timestamps)
+            AND insert_date_utc > (SELECT MIN(trans_hr) FROM event_timestamps)
+            AND trans_dt IN (SELECT DATE(trans_hr) FROM event_timestamps)
+            AND trans_dt IS NOT NULL
+        )
+      ),
+      -- Other logic remains unchanged
+      window_data AS (
+        SELECT
+          *,
+          IF(value < prev_value, 1, 0) AS has_reset
+        FROM (
+          SELECT
+            trans_dt,
+            event_time,
+            fqdn,
+            labels,
+            checksum,
+            instance,
+            KEY,
+            value,
+            `timestamp`,
+            SAFE_CAST(
+              LAG(value) OVER (
+                PARTITION BY fqdn, checksum, instance, KEY, DATETIME_TRUNC(`timestamp`, HOUR)
+                ORDER BY `timestamp`
+              ) AS FLOAT64
+            ) AS prev_value
+          FROM
+            base_data
+        )
+      ),
+      reset_adjusted AS (
+        SELECT
+          event_time,
+          fqdn,
+          instance,
+          trans_dt,
+          MAX(labels) AS labels,
+          checksum,
+          KEY,
+          SUM(value) AS sum_value,
+          SUM(
+            CASE
+              WHEN prev_value IS NULL THEN 0
+              WHEN has_reset = 1 THEN value
+              ELSE value - IFNULL(prev_value, 0)
+            END
+          ) AS increase_value
+        FROM
+          window_data
+        GROUP BY
+          trans_dt,
+          event_time,
+          instance,
+          fqdn,
+          checksum,
+          KEY
+      )
+      SELECT
+        event_time,
+        fqdn,
+        trans_dt,
+        KEY,
+        SUM(increase_value) AS increase_value,
+        SUM(sum_value) AS sum_value
+      FROM
+        reset_adjusted
+      GROUP BY
+        trans_dt,
+        event_time,
+        fqdn,
+        KEY
+      ORDER BY
+        trans_dt,
+        event_time,
+        fqdn,
+        KEY
+    )
+  ) src
+  ON tgt.trans_dt = src.trans_dt
+    AND tgt.event_time = src.event_time
+    AND tgt.fqdn = src.fqdn
+    AND tgt.metric_name = src.metric_name
+    AND tgt.vendor = src.vendor
+    AND tgt.trans_dt IS NOT NULL
+  WHEN MATCHED THEN
+  UPDATE SET
+    tgt.metric_increase_value = src.metric_increase_value,
+    tgt.metric_sum_value = src.metric_sum_value,
+    tgt.schedule_time = src.schedule_time,
+    tgt.updated_timestamp = src.updated_timestamp,
+    tgt.region = src.region -- Update region
+  WHEN NOT MATCHED THEN
+  INSERT (
+    event_time,
+    vendor,
+    fqdn,
+    metric_name,
+    metric_increase_value,
+    metric_sum_value,
+    trans_dt,
+    schedule_time,
+    updated_timestamp,
+    region -- Insert region
+  )
+  VALUES (
+    src.event_time,
+    src.vendor,
+    src.fqdn,
+    src.metric_name,
+    src.metric_increase_value,
+    src.metric_sum_value,
+    src.trans_dt,
+    src.schedule_time,
+    src.updated_timestamp,
+    src.region
+  );
+
+  -- Update audit table with completed status
+  UPDATE
+    `${target_project_id}.${audit_tgt_dataset_name}.${audit_target_tblname}`
+  SET
+    END_TIME = CURRENT_DATETIME(),
+    NUM_RECORDS_AFFECTED = @@ROW_COUNT,
+    STATUS = "Completed",
+    RETURN_MESSAGE = "Success"
+  WHERE
+    PROCESS_NAME = CONCAT("5g core amf hourly process")
+    AND start_time = SAFE_CAST(trans_ts AS DATETIME);
+
+  SELECT "Process Completed Successfully";
+
+EXCEPTION
+  WHEN ERROR THEN
+    -- Update audit table with error status
+    UPDATE
+      `${target_project_id}.${audit_tgt_dataset_name}.${audit_target_tblname}`
+    SET
+      END_TIME = CURRENT_DATETIME(),
+      STATUS = "Error",
+      RETURN_MESSAGE = CONCAT(@@error.message, '------***----', @@error.statement_text)
+    WHERE
+      PROCESS_NAME = CONCAT("5g core amf hourly process")
+      AND start_time = SAFE_CAST(trans_ts AS DATETIME);
+
+   
