@@ -7,61 +7,24 @@ using (
 SELECT
       event_time,
       "ericsson" AS vendor,
-      fqdn,
-      CASE
-         WHEN SUBSTRING(fqdn, 1, 8) IN ('chrxnclh', 'clmascmv', 'gnbqnc1', 'gnvlscmz', 'grnrncjb', 'knvntn76', 'nchrscpl', 'rlghncor', 'whcktn04') THEN 'cartn'
-    WHEN SUBSTRING(fqdn, 1, 8) IN ('schztxce', 'elsstx13', 'shptlawr', 'lbcntxap') THEN 'ctx'
-    WHEN SUBSTRING(fqdn, 1, 8) IN ('jcvoflxz', 'jptrflgn', 'orlhfl01', 'pmbrfltf', 'ptcyflbk') THEN 'fl'
-    WHEN SUBSTRING(fqdn, 1, 8) IN ('alprgagq', 'brhoaltb', 'dlthgagq', 'macngayq') THEN 'gaal'
-    WHEN SUBSTRING(fqdn, 1, 8) IN ('bltnmn86','desmiaie','fargndgv','glvymnnv','omalnexu','owtnmncc','sxflsdtu') THEN 'gp'
-	WHEN SUBSTRING(fqdn, 1, 8) IN ('btrhlagr','cvtnlago','hsnotx08','pnscfl35') THEN 'hgc'
-    WHEN SUBSTRING(fqdn, 1, 8) IN ('applwiee','elgnil32','hchlilmt','mshwinbw','nwblwicz','rcfrilaj','spfdilup') THEN 'ilwi'
-    WHEN SUBSTRING(fqdn, 1, 8) IN ('chndinaa','ipltinqy','ipluinxi','lsvlkywx','cttpmibg','rylomicb','sfldmilr','sflemifx') THEN 'mik'
-    WHEN SUBSTRING(fqdn, 1, 8) IN ('crdlil13','drdnmoad','lenykscj','mnrgksab','spfdmokc','stlsmoyq') THEN 'ksmo'
-	WHEN SUBSTRING(fqdn, 1, 8) IN ('aurscoty','boitidhj','enwdcoff','hlnamthu','krnsutaf','wjrdut30','wmnscows') THEN 'mtn'
-    WHEN SUBSTRING(fqdn, 1, 8) IN ( 'blrcmagf','hkstnhec','tntnmado','wlfrctai','wndsctwl','wrxbmawa','wsbomagj') THEN 'ne'
-    WHEN SUBSTRING(fqdn, 1, 8) IN ('frdlnyek','minlnyac','nycqnyws','wnyknybc','ynkrnyzl','bbtpnj06','bbtpnjda','jrcynj10','waynnjah','wltpnj22') THEN 'nym'
-    WHEN SUBSTRING(fqdn, 1, 8) IN ('bkffcask','frfecabb','pltncaay','rcklcaig','sktncafv','snvacanx') THEN 'nca'
-	WHEN SUBSTRING(fqdn, 1, 8) IN ('akrooh20','clmbohiq','cncqoh22','gahgohbt','lwctoh02','mntpohae','bgvlpaam','jhtwpadp','scviohag','sftppabq') THEN 'opw'
-    WHEN SUBSTRING(fqdn, 1, 8) IN ('ancsak08','eugnorbp','hlboor38','milnhi04','rdmewa22','spknwaqr','sttlwazu','tacmwa43') THEN 'pnw'
-    WHEN SUBSTRING(fqdn, 1, 8) IN ('pttnpadd','pxtgpacr','bflonyro','esyrnyen','hnrtnycr','ngrnnyal') THEN 'upny'
-    WHEN SUBSTRING(fqdn, 1, 8) IN ('artntnbi','ltroartb','tulyok13') THEN 'soc'
-	WHEN SUBSTRING(fqdn, 1, 8) IN ('azusca21','lsancapb','lsaocagx','ontrcaoy','snancapc','vistca65') THEN 'sca'
-    WHEN SUBSTRING(fqdn, 1, 8) IN ('albqnmmf','elpstxwr','glbrazab','nlvgnvoq','phnxazcr','tcsnaz75','temqazkw') THEN 'sw'
-    WHEN SUBSTRING(fqdn, 1, 8) IN ('ewtppaaa','mpshnj57','nwcsdebg','phlapamp','wmtppaaa') THEN 'tristate'
-    WHEN SUBSTRING(fqdn, 1, 8) IN ('nwnwva83','rcmdva83','rcmdvapl','ronkvalv') THEN 'sova'
-	WHEN SUBSTRING(fqdn, 1, 8) IN ('adlpmdmt','anjtmdah','chntvaav','phnxmdaa','slbrmdaz','wdlwmdem') THEN 'wb'
-    WHEN SUBSTRING(fqdn, 1, 8) IN ('welktx','rchltx') THEN 'abc'
-    ELSE 'unknown'
-      END AS region,
-	  CASE
-    WHEN SUBSTRING(region, 1, 3) IN ('ne','nym','tristate','upny','wb') THEN 'ne'
-    WHEN SUBSTRING(region, 1, 3) IN ('mik','opw','ilwi') THEN 'gl'
-    WHEN SUBSTRING(region, 1, 3) IN ('cartn','fl','gaal','sova') THEN 'se'
-    WHEN SUBSTRING(region, 1, 3) IN ('gp|ksmo') THEN 'nc'
-    WHEN SUBSTRING(region, 1, 3) IN ('ctx','hgc','soc','sw') THEN 'sc'
-	WHEN SUBSTRING(region, 1, 3) IN ('mtn','nca','pnw','sca') THEN 'pac'
-	      ELSE 'unknown'
-      END AS Market,
-	CASE
-    WHEN SUBSTRING(fqdn, 1, 3) IN ('mik','opw','ne','nym','tristate','upny','wb','cartn','fl','gaal','sova') THEN 'east'
-    WHEN SUBSTRING(region, 1, 3) IN ('ilwi','gp','ksmo','mtn','nca','pnw','sca','ctx','hgc','soc','sw') THEN 'east'
-    ELSE 'unknown'
-      END AS territory,  
+      fqdn, 
       KEY AS metric_name,
       SAFE_CAST(increase_value AS BIGNUMERIC) AS metric_increase_value,
       SAFE_CAST(sum_value AS BIGNUMERIC) AS metric_sum_value,
       trans_dt,
       DATETIME(process_ts) AS schedule_time,
       CURRENT_TIMESTAMP() AS updated_timestamp,
-      datapoints_count AS datapoints_count
+      datapoints_count AS datapoints_count,
+	  region as region,
+	  territory as territory,
+	  market as market
     FROM (
       
       WITH event_timestamps AS (
         SELECT DISTINCT
           DATETIME_TRUNC(TIMESTAMP(`timestamp`), HOUR) AS trans_hr
         FROM
-             `vz-it-pr-i37v-ndldo-0.vzn_ndl_aether_core_tbls_v.ericsson_cnf_amf_raw_v1`
+             `vz-it-pr-i37v-ndldo-0.vzn_ndl_aether_core_tbls_rd_v.ericsson_cnf_amf_raw_v1`
         WHERE
           DATETIME_TRUNC(TIMESTAMP(insert_date_utc), HOUR) IN UNNEST(
             GENERATE_TIMESTAMP_ARRAY(
@@ -90,7 +53,7 @@ SELECT
             DATE(`timestamp`) AS trans_dt,
             `timestamp`
           FROM
-               `vz-it-pr-i37v-ndldo-0.vzn_ndl_aether_core_tbls_v.ericsson_cnf_amf_raw_v1`
+               `vz-it-pr-i37v-ndldo-0.vzn_ndl_aether_core_tbls_rd_v.ericsson_cnf_amf_raw_v1`
           WHERE
             DATETIME_TRUNC(TIMESTAMP(`timestamp`), HOUR) IN (SELECT trans_hr FROM event_timestamps)
             AND insert_date_utc > (SELECT MIN(trans_hr) FROM event_timestamps)
@@ -151,7 +114,57 @@ SELECT
           fqdn,
           checksum,
           KEY
-      )
+      ),
+	  region_mapping as (
+	  SELECT *,
+	  CASE
+         WHEN SUBSTRING(fqdn, 1, 8) IN ('chrxnclh', 'clmascmv', 'gnbqnc1', 'gnvlscmz', 'grnrncjb', 'knvntn76', 'nchrscpl', 'rlghncor', 'whcktn04') THEN 'cartn'
+    WHEN SUBSTRING(fqdn, 1, 8) IN ('schztxce', 'elsstx13', 'shptlawr', 'lbcntxap') THEN 'ctx'
+    WHEN SUBSTRING(fqdn, 1, 8) IN ('jcvoflxz', 'jptrflgn', 'orlhfl01', 'pmbrfltf', 'ptcyflbk') THEN 'fl'
+    WHEN SUBSTRING(fqdn, 1, 8) IN ('alprgagq', 'brhoaltb', 'dlthgagq', 'macngayq') THEN 'gaal'
+    WHEN SUBSTRING(fqdn, 1, 8) IN ('bltnmn86','desmiaie','fargndgv','glvymnnv','omalnexu','owtnmncc','sxflsdtu') THEN 'gp'
+	WHEN SUBSTRING(fqdn, 1, 8) IN ('btrhlagr','cvtnlago','hsnotx08','pnscfl35') THEN 'hgc'
+    WHEN SUBSTRING(fqdn, 1, 8) IN ('applwiee','elgnil32','hchlilmt','mshwinbw','nwblwicz','rcfrilaj','spfdilup') THEN 'ilwi'
+    WHEN SUBSTRING(fqdn, 1, 8) IN ('chndinaa','ipltinqy','ipluinxi','lsvlkywx','cttpmibg','rylomicb','sfldmilr','sflemifx') THEN 'mik'
+    WHEN SUBSTRING(fqdn, 1, 8) IN ('crdlil13','drdnmoad','lenykscj','mnrgksab','spfdmokc','stlsmoyq') THEN 'ksmo'
+	WHEN SUBSTRING(fqdn, 1, 8) IN ('aurscoty','boitidhj','enwdcoff','hlnamthu','krnsutaf','wjrdut30','wmnscows') THEN 'mtn'
+    WHEN SUBSTRING(fqdn, 1, 8) IN ( 'blrcmagf','hkstnhec','tntnmado','wlfrctai','wndsctwl','wrxbmawa','wsbomagj') THEN 'ne'
+    WHEN SUBSTRING(fqdn, 1, 8) IN ('frdlnyek','minlnyac','nycqnyws','wnyknybc','ynkrnyzl','bbtpnj06','bbtpnjda','jrcynj10','waynnjah','wltpnj22') THEN 'nym'
+    WHEN SUBSTRING(fqdn, 1, 8) IN ('bkffcask','frfecabb','pltncaay','rcklcaig','sktncafv','snvacanx') THEN 'nca'
+	WHEN SUBSTRING(fqdn, 1, 8) IN ('akrooh20','clmbohiq','cncqoh22','gahgohbt','lwctoh02','mntpohae','bgvlpaam','jhtwpadp','scviohag','sftppabq') THEN 'opw'
+    WHEN SUBSTRING(fqdn, 1, 8) IN ('ancsak08','eugnorbp','hlboor38','milnhi04','rdmewa22','spknwaqr','sttlwazu','tacmwa43') THEN 'pnw'
+    WHEN SUBSTRING(fqdn, 1, 8) IN ('pttnpadd','pxtgpacr','bflonyro','esyrnyen','hnrtnycr','ngrnnyal') THEN 'upny'
+    WHEN SUBSTRING(fqdn, 1, 8) IN ('artntnbi','ltroartb','tulyok13') THEN 'soc'
+	WHEN SUBSTRING(fqdn, 1, 8) IN ('azusca21','lsancapb','lsaocagx','ontrcaoy','snancapc','vistca65') THEN 'sca'
+    WHEN SUBSTRING(fqdn, 1, 8) IN ('albqnmmf','elpstxwr','glbrazab','nlvgnvoq','phnxazcr','tcsnaz75','temqazkw') THEN 'sw'
+    WHEN SUBSTRING(fqdn, 1, 8) IN ('ewtppaaa','mpshnj57','nwcsdebg','phlapamp','wmtppaaa') THEN 'tristate'
+    WHEN SUBSTRING(fqdn, 1, 8) IN ('nwnwva83','rcmdva83','rcmdvapl','ronkvalv') THEN 'sova'
+	WHEN SUBSTRING(fqdn, 1, 8) IN ('adlpmdmt','anjtmdah','chntvaav','phnxmdaa','slbrmdaz','wdlwmdem') THEN 'wb'
+    WHEN SUBSTRING(fqdn, 1, 8) IN ('welktx','rchltx') THEN 'abc'
+    ELSE 'unknown'
+      END AS region
+	  FROM reset_adjusted),
+	  Market_mapping AS(
+	  SELECT *, CASE
+    WHEN SUBSTRING(region, 1, 3) IN ('ne','nym','tristate','upny','wb') THEN 'ne'
+    WHEN SUBSTRING(region, 1, 3) IN ('mik','opw','ilwi') THEN 'gl'
+    WHEN SUBSTRING(region, 1, 3) IN ('cartn','fl','gaal','sova') THEN 'se'
+    WHEN SUBSTRING(region, 1, 3) IN ('gp|ksmo') THEN 'nc'
+    WHEN SUBSTRING(region, 1, 3) IN ('ctx','hgc','soc','sw') THEN 'sc'
+	WHEN SUBSTRING(region, 1, 3) IN ('mtn','nca','pnw','sca') THEN 'pac'
+	      ELSE 'unknown'
+      END AS Market
+	  FROM region_mapping
+	  ),
+	  territory_mapping AS (
+	  SELECT *,
+    CASE
+    WHEN SUBSTRING(fqdn, 1, 3) IN ('mik','opw','ne','nym','tristate','upny','wb','cartn','fl','gaal','sova') THEN 'east'
+    WHEN SUBSTRING(region, 1, 3) IN ('ilwi','gp','ksmo','mtn','nca','pnw','sca','ctx','hgc','soc','sw') THEN 'east'
+    ELSE 'unknown'
+      END AS territory
+	  FROM Market_mapping)
+	  
       SELECT
         event_time,
         fqdn,
