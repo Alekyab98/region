@@ -1,0 +1,8 @@
+INSERT INTO `vz-it-pr-gudv-dev-dtwndo-0.auto_bi_sample.fwa_customer_network_usage_daily_norm`
+SELECT *
+FROM `vz-it-pr-gudv-dtwndo-0.aid_dtwin_fwa_core_tbls_rd_v.fwa_customer_network_usage_daily_norm`
+WHERE trans_dt = '2024-11-17'
+  AND (mdn, imsi) IN (
+    SELECT mdn, imsi
+    FROM `vz-it-pr-gudv-dev-dtwndo-0.auto_bi_sample.temp_mdn_imsi`
+  );
