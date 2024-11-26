@@ -1,0 +1,8 @@
+SELECT *
+FROM fwa_site_performance_daily_norm
+WHERE fuze_site_id IN (
+    SELECT DISTINCT connected_fuze_site_id_5g
+    FROM fwa_active_customer_performance_daily_norm
+    WHERE imsi IN (SELECT imsi FROM dev_temp_table)
+)
+AND trans_dt BETWEEN '2024-11-01' AND '2024-11-07';
