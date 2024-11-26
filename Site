@@ -1,0 +1,19 @@
+SELECT DISTINCT site.*
+FROM `project-id.dataset.fwa_site_performance_daily_norm` site
+JOIN (
+    SELECT imsi, mdn, connected_fuze_site_id_5g AS fuze_site_id
+    FROM `project-id.dataset.fwa_active_customer_performance_daily_norm` active
+    WHERE trans_dt = '2024-11-16'
+      AND (imsi IN (SELECT imsi FROM `project-id.dataset.temp_table`)
+           OR mdn IN (SELECT mdn FROM `project-id.dataset.temp_table`))
+    
+    UNION ALL
+
+    SELECT imsi, mdn, connected_fuze_site_id_4g AS fuze_site_id
+    FROM `project-id.dataset.fwa_active_customer_performance_daily_norm` active
+    WHERE trans_dt = '2024-11-16'
+      AND (imsi IN (SELECT imsi FROM `project-id.dataset.temp_table`)
+           OR mdn IN (SELECT mdn FROM `project-id.dataset.temp_table`))
+) matched_active
+ON site.fuze_site_id = matched_active.fuze_site_id
+WHERE site.trans_dt = '2024-11-16';
