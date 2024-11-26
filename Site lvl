@@ -1,14 +1,20 @@
 SELECT *
-FROM site_performance_norm
-WHERE site_id IN (
+FROM `project-id.dataset.fwa_site_performance_daily_norm` site
+WHERE site.fuze_site_id IN (
     SELECT DISTINCT connected_fuze_site_id_5g
-    FROM active_customer_performance_norm
-    WHERE connected_fuze_site_id_5g IS NOT NULL
-      AND (imsi IN (SELECT imsi FROM temp_table) OR mdn IN (SELECT mdn FROM temp_table))
-)
-OR site_id IN (
+    FROM `project-id.dataset.fwa_active_customer_performance_daily_norm` active
+    WHERE active.trans_dt = '2024-11-16' -- Add partition filter here
+      AND connected_fuze_site_id_5g IS NOT NULL
+      AND (active.imsi IN (SELECT imsi FROM `project-id.dataset.temp_table`)
+           OR active.mdn IN (SELECT mdn FROM `project-id.dataset.temp_table`))
+    
+    UNION ALL
+
     SELECT DISTINCT connected_fuze_site_id_4g
-    FROM active_customer_performance_norm
-    WHERE connected_fuze_site_id_4g IS NOT NULL
-      AND (imsi IN (SELECT imsi FROM temp_table) OR mdn IN (SELECT mdn FROM temp_table))
-);
+    FROM `project-id.dataset.fwa_active_customer_performance_daily_norm` active
+    WHERE active.trans_dt = '2024-11-16' -- Add partition filter here
+      AND connected_fuze_site_id_4g IS NOT NULL
+      AND (active.imsi IN (SELECT imsi FROM `project-id.dataset.temp_table`)
+           OR active.mdn IN (SELECT mdn FROM `project-id.dataset.temp_table`))
+)
+AND site.trans_dt = '2024-11-16'; -- Add partition filter for the `site` table
