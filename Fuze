@@ -1,0 +1,25 @@
+-- Get site-level records from fwa_site_performance_daily_norm
+SELECT *
+FROM fwa_site_performance_daily_norm
+WHERE fuze_site_id IN (
+    SELECT connected_fuze_site_id_5g
+    FROM fwa_active_customer_performance_daily_norm
+    WHERE IMSI IN (SELECT IMSI FROM active_imsi_table)
+    UNION
+    SELECT connected_fuze_site_id_4g
+    FROM fwa_active_customer_performance_daily_norm
+    WHERE IMSI IN (SELECT IMSI FROM active_imsi_table)
+);
+
+-- Get site-level records from fwa_site_capacity_daily_norm
+SELECT *
+FROM fwa_site_capacity_daily_norm
+WHERE fuze_site_id IN (
+    SELECT connected_fuze_site_id_5g
+    FROM fwa_active_customer_performance_daily_norm
+    WHERE IMSI IN (SELECT IMSI FROM active_imsi_table)
+    UNION
+    SELECT connected_fuze_site_id_4g
+    FROM fwa_active_customer_performance_daily_norm
+    WHERE IMSI IN (SELECT IMSI FROM active_imsi_table)
+);
