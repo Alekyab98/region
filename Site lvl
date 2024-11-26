@@ -1,8 +1,14 @@
 SELECT *
-FROM fwa_site_performance_daily_norm
-WHERE fuze_site_id IN (
+FROM site_performance_norm
+WHERE site_id IN (
     SELECT DISTINCT connected_fuze_site_id_5g
-    FROM fwa_active_customer_performance_daily_norm
-    WHERE imsi IN (SELECT imsi FROM dev_temp_table)
+    FROM active_customer_performance_norm
+    WHERE connected_fuze_site_id_5g IS NOT NULL
+      AND (imsi IN (SELECT imsi FROM temp_table) OR mdn IN (SELECT mdn FROM temp_table))
 )
-AND trans_dt BETWEEN '2024-11-01' AND '2024-11-07';
+OR site_id IN (
+    SELECT DISTINCT connected_fuze_site_id_4g
+    FROM active_customer_performance_norm
+    WHERE connected_fuze_site_id_4g IS NOT NULL
+      AND (imsi IN (SELECT imsi FROM temp_table) OR mdn IN (SELECT mdn FROM temp_table))
+);
