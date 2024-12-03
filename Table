@@ -1,0 +1,18 @@
+CREATE TABLE mapping_table (
+    kubernetes_namespace_pattern STRING, -- Matches namespaces
+    region STRING,                      -- Region derived from namespace
+    market STRING,                      -- Market derived from region
+    territory STRING                    -- Territory derived from region
+);
+
+-- Insert data based on mappings
+INSERT INTO mapping_table (kubernetes_namespace_pattern, region, market, territory) VALUES
+    -- Regions
+    ('chrxnclh%|clmascmv%|gnbqnc15%|gnvlscmz%|grnrncjb%|knvntn76%|nchrscpl%|rlghncor%|whcktn04%', 'cartn', 'se', 'east'),
+    ('schztxce%|elsstx13%|shptlawr%|lbcntxap%', 'ctx', 'sc', 'west'),
+    ('jcvoflxz%|jptrflgn%|orlhfl01%|pmbrfltf%|ptcyflbk%', 'fl', 'se', 'east'),
+    ('alprgagq%|brhoaltb%|dlthgagq%|macngayq%', 'gaal', 'se', 'east'),
+    ('bltnmn86%|desmiaie%|fargndgv%|glvymnnv%|omalnexu%|owtnmncc%|sxflsdtu%', 'gp', 'nc', 'west'),
+    ('welktx%|rchltx%', 'wb', 'ne', 'east'),
+    -- Continue adding remaining mappings
+    ('mtn%|nca%|pnw%|sca%', 'pac', 'pac', 'west');
