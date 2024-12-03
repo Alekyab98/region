@@ -1,0 +1,31 @@
+INSERT INTO `vz-it-np-gudv-dev-dtwndo-0.aid_nwperf_aether_core_tbls.mapping_table` (
+    fqdn_substring, region, market, territory, effective_date
+)
+VALUES
+    -- cartn Region
+    ('chrxnclh', 'cartn', 'se', 'east', '2024-12-03'),
+    ('clmascmv', 'cartn', 'se', 'east', '2024-12-03'),
+    ('gnbqnc15', 'cartn', 'se', 'east', '2024-12-03'),
+    ('gnvlscmz', 'cartn', 'se', 'east', '2024-12-03'),
+
+    -- ctx Region
+    ('schztxce', 'ctx', 'sc', 'west', '2024-12-03'),
+    ('elsstx13', 'ctx', 'sc', 'west', '2024-12-03'),
+    ('shptlawr', 'ctx', 'sc', 'west', '2024-12-03'),
+    ('lbcntxap', 'ctx', 'sc', 'west', '2024-12-03'),
+
+    -- fl Region
+    ('jcvoflxz', 'fl', 'se', 'east', '2024-12-03'),
+    ('jptrflgn', 'fl', 'se', 'east', '2024-12-03'),
+    ('orlhfl01', 'fl', 'se', 'east', '2024-12-03'),
+    ('pmbrfltf', 'fl', 'se', 'east', '2024-12-03'),
+
+    -- mik Region
+    ('chndinaa', 'mik', 'gl', 'east', '2024-12-03'),
+    ('ipltinqy', 'mik', 'gl', 'east', '2024-12-03'),
+    ('ipluinxi', 'mik', 'gl', 'east', '2024-12-03'),
+    ('lsvlkywx', 'mik', 'gl', 'east', '2024-12-03'),
+
+    -- wb Region
+    ('welktx', 'wb', 'ne', 'east', '2024-12-03'),
+    ('rchltx', 'wb', 'ne', 'east', '2024-12-03');
