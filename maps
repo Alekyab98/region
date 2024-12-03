@@ -1,0 +1,128 @@
+source_labels: [ kubernetes_namespace ]
+  regex: 'chrxnclh.*|clmascmv.*|gnbqnc15.*|gnvlscmz.*|grnrncjb.*|knvntn76.*|nchrscpl.*|rlghncor.*|whcktn04.*'
+  replacement: 'cartn'
+  target_label: region
+- source_labels: [ kubernetes_namespace ]
+  regex: 'schztxce.*|elsstx13.*|shptlawr.*|lbcntxap.*'
+  replacement: 'ctx'
+  target_label: region
+- source_labels: [ kubernetes_namespace ]
+  regex: 'jcvoflxz.*|jptrflgn.*|orlhfl01.*|pmbrfltf.*|ptcyflbk.*'
+  replacement: 'fl'
+  target_label: region
+- source_labels: [ kubernetes_namespace ]
+  regex: 'alprgagq.*|brhoaltb.*|dlthgagq.*|macngayq.*'
+  replacement: 'gaal'
+  target_label: region
+- source_labels: [ kubernetes_namespace ]
+  regex: 'bltnmn86.*|desmiaie.*|fargndgv.*|glvymnnv.*|omalnexu.*|owtnmncc.*|sxflsdtu.*'
+  replacement: 'gp'
+  target_label: region
+- source_labels: [ kubernetes_namespace ]
+  regex: 'btrhlagr.*|cvtnlago.*|hsnotx08.*|pnscfl35.*'
+  replacement: 'hgc'
+  target_label: region
+- source_labels: [ kubernetes_namespace ]
+  regex: 'applwiee.*|elgnil32.*|hchlilmt.*|mshwinbw.*|nwblwicz.*|rcfrilaj.*|spfdilup.*'
+  replacement: 'ilwi'
+  target_label: region
+- source_labels: [ kubernetes_namespace ]
+  regex: 'chndinaa.*|ipltinqy.*|ipluinxi.*|lsvlkywx.*|cttpmibg.*|rylomicb.*|sfldmilr.*|sflemifx.*'
+  replacement: 'mik'
+  target_label: region
+- source_labels: [ kubernetes_namespace ]
+  regex: 'crdlil13.*|drdnmoad.*|lenykscj.*|mnrgksab.*|spfdmokc.*|stlsmoyq.*'
+  replacement: 'ksmo'
+  target_label: region
+- source_labels: [ kubernetes_namespace ]
+  regex: 'aurscoty.*|boitidhj.*|enwdcoff.*|hlnamthu.*|krnsutaf.*|wjrdut30.*|wmnscows.*'
+  replacement: 'mtn'
+  target_label: region
+- source_labels: [ kubernetes_namespace ]
+  regex: 'blrcmagf.*|hkstnhec.*|tntnmado.*|wlfrctai.*|wndsctwl.*|wrxbmawa.*|wsbomagj.*'
+  replacement: 'ne'
+  target_label: region
+- source_labels: [ kubernetes_namespace ]
+  regex: 'frdlnyek.*|minlnyac.*|nycqnyws.*|wnyknybc.*|ynkrnyzl.*|bbtpnj06.*|bbtpnjda.*|jrcynj10.*|waynnjah.*|wltpnj22.*'
+  replacement: 'nym'
+  target_label: region
+- source_labels: [ kubernetes_namespace ]
+  regex: 'bkffcask.*|frfecabb.*|pltncaay.*|rcklcaig.*|sktncafv.*|snvacanx.*'
+  replacement: 'nca'
+  target_label: region
+- source_labels: [ kubernetes_namespace ]
+  regex: 'akrooh20.*|clmbohiq.*|cncqoh22.*|gahgohbt.*|lwctoh02.*|mntpohae.*|bgvlpaam.*|jhtwpadp.*|scviohag.*|sftppabq.*'
+  replacement: 'opw'
+  target_label: region
+- source_labels: [ kubernetes_namespace ]
+  regex: 'ancsak08.*|eugnorbp.*|hlboor38.*|milnhi04.*|rdmewa22.*|spknwaqr.*|sttlwazu.*|tacmwa43.*'
+  replacement: 'pnw'
+  target_label: region
+- source_labels: [ kubernetes_namespace ]
+  regex: 'pttnpadd.*|pxtgpacr.*|bflonyro.*|esyrnyen.*|hnrtnycr.*|ngrnnyal.*'
+  replacement: 'upny'
+  target_label: region
+- source_labels: [ kubernetes_namespace ]
+  regex: 'artntnbi.*|ltroartb.*|tulyok13.*'
+  replacement: 'soc'
+  target_label: region
+- source_labels: [ kubernetes_namespace ]
+  regex: 'azusca21.*|lsancapb.*|lsaocagx.*|ontrcaoy.*|snancapc.*|vistca65.*'
+  replacement: 'sca'
+  target_label: region
+- source_labels: [ kubernetes_namespace ]
+  regex: 'albqnmmf.*|elpstxwr.*|glbrazab.*|nlvgnvoq.*|phnxazcr.*|tcsnaz75.*|temqazkw.*'
+  replacement: 'sw'
+  target_label: region
+- source_labels: [ kubernetes_namespace ]
+  regex: 'ewtppaaa.*|mpshnj57.*|nwcsdebg.*|phlapamp.*|wmtppaaa.*'
+  replacement: 'tristate'
+  target_label: region
+- source_labels: [ kubernetes_namespace ]
+  regex: 'nwnwva83.*|rcmdva83.*|rcmdvapl.*|ronkvalv.*'
+  replacement: 'sova'
+  target_label: region
+- source_labels: [ kubernetes_namespace ]
+  regex: 'adlpmdmt.*|anjtmdah.*|chntvaav.*|phnxmdaa.*|slbrmdaz.*|wdlwmdem.*'
+  replacement: 'wb'
+  target_label: region
+- source_labels: [ kubernetes_namespace ]
+  regex: 'welktx.*|rchltx.*'
+9:07
+^ is for region
+9:07
+- source_labels: [ region ]
+  regex: 'mik|opw|ilwi'
+  replacement: 'gl'
+  target_label: market
+- source_labels: [ region ]
+  regex: 'ne|nym|tristate|upny|wb'
+  replacement: 'ne'
+  target_label: market
+- source_labels: [ region ]
+  regex: 'cartn|fl|gaal|sova'
+  replacement: 'se'
+  target_label: market
+- source_labels: [ region ]
+  regex: 'gp|ksmo'
+  replacement: 'nc'
+  target_label: market
+- source_labels: [ region ]
+  regex: 'ctx|hgc|soc|sw'
+  replacement: 'sc'
+  target_label: market
+- source_labels: [ region ]
+  regex: 'mtn|nca|pnw|sca'
+  replacement: 'pac'
+  target_label: market
+9:07
+^ is market
+9:07
+- source_labels: [ region ]
+  regex: 'mik|opw|ne|nym|tristate|upny|wb|cartn|fl|gaal|sova'
+  replacement: 'east'
+  target_label: territory
+- source_labels: [ region ]
+  regex: 'ilwi|gp|ksmo|mtn|nca|pnw|sca|ctx|hgc|soc|sw'
+  replacement: 'west'
+  target_label: territory
