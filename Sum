@@ -1,0 +1,107 @@
+import requests
+import pandas as pd
+
+# Grafana API details
+GRAFANA_URL = "https://us.aether.nss.vzwnet.com/gem/prometheus/api/v1"
+API_KEYS = {
+    "AMF": "your_amf_api_key",  # Replace with valid API key
+    "SMF": "your_smf_api_key",  # Replace with valid API key
+    "UPF": "your_upf_api_key",  # Replace with valid API key
+}
+FUNCTIONS = ["AMF", "SMF", "UPF"]
+
+# Time range for historical data (Epoch time)
+START_TIME = 1717632000  # Replace with start time
+END_TIME = 1733356800    # Replace with end time
+STEP = "60m"  # 1-hour interval
+
+# Function to fetch all metric names dynamically
+def fetch_all_metrics(function):
+    headers = {"Authorization": f"Bearer {API_KEYS[function]}"}
+    url = f"{GRAFANA_URL}/label/__name__/values"
+    response = requests.get(url, headers=headers)
+
+    if response.status_code != 200:
+        print(f"Failed to fetch metrics for {function}: {response.status_code} - {response.text}")
+        return []
+
+    return response.json().get("data", [])
+
+# Function to fetch data for a specific metric
+def fetch_metric_data(function, metric_name):
+    headers = {"Authorization": f"Bearer {API_KEYS[function]}"}
+    query = f"sum by(kubernetes_namespace) (sum_over_time({metric_name}[1h]) offset -1h)"
+    params = {
+        "query": query,
+        "start": START_TIME,
+        "end": END_TIME,
+        "step": STEP,
+    }
+    url = f"{GRAFANA_URL}/query_range"
+    response = requests.get(url, headers=headers, params=params)
+
+    if response.status_code != 200:
+        print(f"Failed to fetch data for {metric_name} under {function}: {response.status_code} - {response.text}")
+        return None
+
+    return response.json()
+
+# Function to calculate sum and increase
+def calculate_sum_and_increase(raw_data):
+    results = []
+    for result in raw_data.get("data", {}).get("result", []):
+        metric_name = result["metric"].get("__name__", "unknown")
+        values = result["values"]
+
+        total_sum = 0
+        total_increase = 0
+
+        for i in range(1, len(values)):
+            prev_time, prev_value = values[i - 1]
+            curr_time, curr_value = values[i]
+            try:
+                prev_value = float(prev_value)
+                curr_value = float(curr_value)
+                total_sum += curr_value
+                total_increase += max(0, curr_value - prev_value)
+            except ValueError:
+                continue
+
+        results.append({
+            "metric_name": metric_name,
+            "sum": total_sum,
+            "increase": total_increase
+        })
+
+    return results
+
+# Main script
+def main():
+    all_results = []
+
+    for function in FUNCTIONS:
+        print(f"Fetching metrics for function: {function}")
+        metric_names = fetch_all_metrics(function)
+
+        if not metric_names:
+            print(f"No metrics found for function: {function}")
+            continue
+
+        print(f"Found {len(metric_names)} metrics for {function}")
+        for metric_name in metric_names[:10]:  # Adjust the range to fetch more metrics
+            print(f"Fetching data for metric: {metric_name}")
+            raw_data = fetch_metric_data(function, metric_name)
+            if raw_data:
+                results = calculate_sum_and_increase(raw_data)
+                all_results.extend(results)
+
+    # Save to CSV
+    if all_results:
+        df = pd.DataFrame(all_results)
+        print("Saving data to metrics_summary.csv")
+        df.to_csv("metrics_summary.csv", index=False)
+    else:
+        print("No data fetched.")
+
+if __name__ == "__main__":
+    main()p
