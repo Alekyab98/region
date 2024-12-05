@@ -1,0 +1,89 @@
+import requests
+import pandas as pd
+
+# Grafana API details
+GRAFANA_URL = "https://us.aether.nss.vzwnet.com/gem/prometheus/api/v1"
+API_KEYS = {
+    "AMF": "your_amf_api_key",  # Replace with valid API key
+    "SMF": "your_smf_api_key",  # Replace with valid API key
+    "UPF": "your_upf_api_key",  # Replace with valid API key
+}
+FUNCTIONS = ["AMF", "SMF", "UPF"]
+
+# Time range for historical data (Epoch time)
+START_TIME = 1717632000  # Replace with start time
+END_TIME = 1733356800    # Replace with end time
+STEP = "60m"  # 1-hour interval
+
+# Function to fetch all metric names dynamically
+def fetch_all_metrics(function):
+    headers = {"Authorization": f"Bearer {API_KEYS[function]}"}
+    url = f"{GRAFANA_URL}/label/__name__/values"
+    response = requests.get(url, headers=headers)
+
+    if response.status_code != 200:
+        print(f"Failed to fetch metrics for {function}: {response.status_code} - {response.text}")
+        return []
+
+    return response.json().get("data", [])
+
+# Function to fetch `sum_over_time` and `increase` values for a specific metric
+def fetch_metric_aggregates(function, metric_name):
+    headers = {"Authorization": f"Bearer {API_KEYS[function]}"}
+    url = f"{GRAFANA_URL}/query"
+    aggregates = {}
+
+    # Fetch sum_over_time
+    query_sum = f"sum_over_time({metric_name}[1h])"
+    params_sum = {
+        "query": query_sum,
+        "start": START_TIME,
+        "end": END_TIME,
+        "step": STEP,
+    }
+    response_sum = requests.get(url, headers=headers, params=params_sum)
+
+    if response_sum.status_code == 200:
+        aggregates["sum"] = response_sum.json()["data"]["result"][0]["value"][1]
+    else:
+        print(f"Failed to fetch sum_over_time for {metric_name}: {response_sum.text}")
+
+    # Fetch increase
+    query_increase = f"increase({metric_name}[1h])"
+    params_increase = {
+        "query": query_increase,
+        "start": START_TIME,
+        "end": END_TIME,
+        "step": STEP,
+    }
+    response_increase = requests.get(url, headers=headers, params=params_increase)
+
+    if response_increase.status_code == 200:
+        aggregates["increase"] = response_increase.json()["data"]["result"][0]["value"][1]
+    else:
+        print(f"Failed to fetch increase for {metric_name}: {response_increase.text}")
+
+    return aggregates
+
+# Main script
+def main():
+    all_results = []
+
+    for function in FUNCTIONS:
+        print(f"Fetching metrics for function: {function}")
+        metric_names = fetch_all_metrics(function)
+
+        if not metric_names:
+            print(f"No metrics found for function: {function}")
+            continue
+
+        print(f"Found {len(metric_names)} metrics for {function}")
+        for metric_name in metric_names[:10]:  # Adjust the range to fetch more metrics
+            print(f"Fetching aggregates for metric: {metric_name}")
+            aggregates = fetch_metric_aggregates(function, metric_name)
+            if aggregates:
+                all_results.append({
+                    "function": function,
+                    "metric_name": metric_name,
+                    "sum": aggregates.get("sum", "N/A"),
+                    "increase": aggregates.get
