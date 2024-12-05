@@ -1,0 +1,97 @@
+import requests
+import json
+import pandas as pd
+from datetime import datetime, timedelta
+
+# API details for Grafana
+GRAFANA_URL = "http://<grafana-server>/api/datasources/proxy/<datasource-id>/api/v1/query_range"
+API_KEYS = {
+    "AMF": "your_amf_api_key",
+    "SMF": "your_smf_api_key",
+    "UPF": "your_upf_api_key",
+}
+FUNCTIONS = ["AMF", "SMF", "UPF"]
+
+# Time range for historical data
+START_TIME = int((datetime.utcnow() - timedelta(days=180)).timestamp())  # 6 months ago
+END_TIME = int(datetime.utcnow().timestamp())  # Current time
+STEP = "3600s"  # 1-hour interval
+
+# Function to build cURL command
+def build_curl_command(metric_name, start_time, end_time, step, api_key):
+    curl_command = f"""
+    curl -X GET '{GRAFANA_URL}?query={metric_name}&start={start_time}&end={end_time}&step={step}' \
+    -H "Authorization: Bearer {api_key}"
+    """
+    return curl_command.strip()
+
+# Function to fetch data from Grafana API
+def fetch_metric_data(function, metric_name):
+    headers = {"Authorization": f"Bearer {API_KEYS[function]}"}
+    params = {
+        "query": metric_name,
+        "start": START_TIME,
+        "end": END_TIME,
+        "step": STEP,
+    }
+    
+    response = requests.get(GRAFANA_URL, headers=headers, params=params)
+    
+    if response.status_code != 200:
+        print(f"Failed to fetch data for {metric_name} under {function}: {response.status_code} - {response.text}")
+        return None
+    
+    return response.json()
+
+# Function to calculate increase, sum, and rate
+def calculate_metrics(raw_data):
+    metrics = []
+    for result in raw_data.get("data", {}).get("result", []):
+        metric_name = result["metric"]["__name__"]
+        values = result["values"]
+        
+        hourly_data = []
+        for i in range(1, len(values)):
+            prev_time, prev_value = values[i - 1]
+            curr_time, curr_value = values[i]
+            try:
+                prev_value = float(prev_value)
+                curr_value = float(curr_value)
+                increase = max(0, curr_value - prev_value)
+                rate = increase / (3600)  # Assuming step = 1 hour
+                hourly_data.append({
+                    "timestamp": curr_time,
+                    "metric_name": metric_name,
+                    "sum_value": curr_value,
+                    "increase_value": increase,
+                    "rate_value": rate,
+                })
+            except ValueError:
+                continue
+        metrics.extend(hourly_data)
+    return metrics
+
+# Main script
+def main():
+    all_metrics_data = []
+    
+    for function in FUNCTIONS:
+        print(f"Fetching data for function: {function}")
+        
+        # Example metric names (replace with actual metric names)
+        metric_names = ["metric_1", "metric_2", "metric_3"]  # Replace with your metric names
+        
+        for metric_name in metric_names:
+            print(f"Fetching data for metric: {metric_name}")
+            raw_data = fetch_metric_data(function, metric_name)
+            if raw_data:
+                metrics = calculate_metrics(raw_data)
+                all_metrics_data.extend(metrics)
+    
+    # Convert all metrics data to a DataFrame
+    df = pd.DataFrame(all_metrics_data)
+    print("Saving data to metrics_data.csv")
+    df.to_csv("metrics_data.csv", index=False)
+
+if __name__ == "__main__":
+    main()
