@@ -1,0 +1,185 @@
+select
+t.trans_dt,
+t.event_time,
+t.vendor,
+t.fqdn,
+m.region,
+m.market,
+m.territory,
+t.metric_name,
+ case
+ metric_name
+when 'registered_users' then safe_cast(pcmm_vs_mm_nbrregisteredsub_5gs_sum as float64)
+when 'gnb_connected' then safe_cast(pcmm_vs_n2_nbrconnectedgnodeb_5gs_sum as float64)
+when 'initial_registration_failure_rate__attempts' then safe_cast(pcmm_vs_mm_reginitatt_5gs_increase as float64)
+when 'initial_registration_failure_rate__failure_rate' then  round(safe_cast(safe_divide((pcmm_vs_mm_reginitatt_5gs_increase  - pcmm_vs_mm_reginitsucc_5gs_increase  - pcmm_vs_mm_reginitrejcc6_5gs_increase  - pcmm_vs_mm_reginitrejcc7_5gs_increase  - pcmm_vs_mm_reginitrejcc11_5gs_increase  - pcmm_vs_mm_reginitrejcc27_5gs_increase  - pcmm_vs_mm_reginitrejthrottle_5gs_increase  - pcmm_vs_mm_reginitrejurrbthrottle_5gs_increase),pcmm_vs_mm_reginitatt_5gs_increase) * 100 as float64),4)
+when 'initial_registration_failure_rate__emergency_attempts' then safe_cast(pcmm_vs_mm_regemcatt_5gs_increase as float64)
+when 'initial_registration_failures__cc7-5gs_increase_services_not_allowed' then safe_cast(if(pcmm_vs_mm_reginitrejcc7_5gs_increase > 0, 1, 0) as float64)
+when 'initial_registration_failures__cc5-pei_not_accepted' then safe_cast(if(pcmm_vs_mm_reginitrejcc5_5gs_increase > 0, 1, 0) as float64)
+when 'initial_registration_failures__cc6-illegal_me' then safe_cast(if(pcmm_vs_mm_reginitrejcc6_5gs_increase > 0, 1, 0) as float64)
+when 'initial_registration_failures__cc3-illegal_ue' then safe_cast(if(pcmm_vs_mm_reginitrejcc3_5gs_increase > 0, 1, 0) as float64)
+when 'initial_registration_failures__cc11-plmn_not_allowed' then safe_cast(if(pcmm_vs_mm_reginitrejcc11_5gs_increase > 0, 1, 0) as float64)
+when 'initial_registration_failures__cc12-tracking_area_not_allowed' then safe_cast(if(pcmm_vs_mm_reginitrejcc12_5gs_increase > 0, 1, 0) as float64)
+when 'initial_registration_failures__cc13-roaming_not_allowed' then safe_cast(if(pcmm_vs_mm_reginitrejcc13_5gs_increase > 0, 1, 0) as float64)
+when 'initial_registration_failures__cc15-no_suitable_cells_in_ta' then safe_cast(if(pcmm_vs_mm_reginitrejcc15_5gs_increase > 0, 1, 0) as float64)
+when 'initial_registration_failures__cc22-5gmm_congestion' then safe_cast(if(pcmm_vs_mm_reginitrejcc22_5gs_increase > 0, 1, 0) as float64)
+when 'initial_registration_failures__cc27-n1_mode_not_allowed' then safe_cast(if(pcmm_vs_mm_reginitrejcc27_5gs_increase > 0, 1, 0) as float64)
+when 'initial_registration_failures__cc111-protocol_error' then safe_cast(if(pcmm_vs_mm_reginitrejcc111_5gs_increase > 0, 1, 0) as float64)
+when 'initial_registration_failures__initial_access_throttle' then safe_cast(if(pcmm_vs_mm_reginitrejthrottle_5gs_increase > 0, 1, 0) as float64)
+when 'initial_registration_failures__ue_registration_throttle' then safe_cast(if(pcmm_vs_mm_reginitrejurrbthrottle_5gs_increase > 0, 1, 0) as float64)
+when 'initial_registration_failures__cc9-ue_identity_cannot_be_derived' then safe_cast(if(pcmm_vs_mm_reginitrejcc9_5gs_increase > 0, 1, 0) as float64)
+when 'interworking_registration_failure_rate__attempts' then safe_cast(pcmm_vs_mm_reginteriwkatt_5gs_increase as float64)
+when 'interworking_registration_failure_rate__failure_rate' then  round(safe_cast(safe_divide((pcmm_vs_mm_reginteriwkatt_5gs_increase  - pcmm_vs_mm_reginteriwksucc_5gs_increase  - pcmm_vs_mm_reginteriwkrejcc6_5gs_increase  - pcmm_vs_mm_reginteriwkrejcc7_5gs_increase  - pcmm_vs_mm_reginteriwkrejcc11_5gs_increase  - pcmm_vs_mm_reginteriwkrejcc27_5gs_increase  - pcmm_vs_mm_reginteriwkrejthrottle_5gs_increase),pcmm_vs_mm_reginteriwkatt_5gs_increase)* 100 as float64),4)
+when 'interworking_registration_failures__cc7-5gs_increase_services_not_allowed' then safe_cast(if(pcmm_vs_mm_reginteriwkrejcc7_5gs_increase > 0, 1, 0) as float64)
+when 'interworking_registration_failures__cc5-pei_not_accepted' then safe_cast(if(pcmm_vs_mm_reginteriwkrejcc5_5gs_increase > 0, 1, 0) as float64)
+when 'interworking_registration_failures__cc6-illegal_me' then safe_cast(if(pcmm_vs_mm_reginteriwkrejcc6_5gs_increase > 0, 1, 0) as float64)
+when 'interworking_registration_failures__cc11-plmn_not_allowed' then safe_cast(if(pcmm_vs_mm_reginteriwkrejcc11_5gs_increase > 0, 1, 0) as float64)
+when 'interworking_registration_failures__cc12-tracking_area_not_allowed' then safe_cast(if(pcmm_vs_mm_reginteriwkrejcc12_5gs_increase > 0, 1, 0) as float64)
+when 'interworking_registration_failures__cc13-roaming_not_allowed' then safe_cast(if(pcmm_vs_mm_reginteriwkrejcc13_5gs_increase > 0, 1, 0) as float64)
+when 'interworking_registration_failures__cc15-no_suitable_cells_in_ta' then safe_cast(if(pcmm_vs_mm_reginitrejcc15_5gs_increase > 0, 1, 0) as float64)
+when 'interworking_registration_failures__cc22-5gmm_congestion' then safe_cast(if(pcmm_vs_mm_reginteriwkrejcc22_5gs_increase > 0, 1, 0) as float64)
+when 'interworking_registration_failures__cc27-n1_mode_not_allowed' then safe_cast(if(pcmm_vs_mm_reginteriwkrejcc27_5gs_increase > 0, 1, 0) as float64)
+when 'interworking_registration_failures__cc111-protocol_error' then safe_cast(if(pcmm_vs_mm_reginteriwkrejcc111_5gs_increase > 0, 1, 0) as float64)
+when 'interworking_registration_failures__initial_access_throttle' then safe_cast(if(pcmm_vs_mm_reginteriwkrejthrottle_5gs_increase > 0, 1, 0) as float64)
+when 'interworking_registration_failures__ue_registration_throttle' then safe_cast(if(pcmm_vs_mm_reginteriwkrejthrottle_5gs_increase > 0, 1, 0) as float64)
+when 'interworking_registration_failures__cc9-ue_cannot_be_derived' then safe_cast(if(pcmm_vs_mm_reginteriwkrejcc9_5gs_increase > 0, 1, 0) as float64)
+when 'amf_paging_ratio__attempts' then safe_cast(pcmm_vs_mm_pagingatt_5gs_increase as float64)
+when 'amf_paging_ratio__failure_rate' then  round(safe_cast(safe_divide((pcmm_vs_mm_pagingatt_5gs_increase  - pcmm_vs_mm_pagingsucc_5gs_increase),pcmm_vs_mm_pagingatt_5gs_increase  ) * 100 as float64),4)
+when 'service_request_failure_ratio__attempts' then safe_cast(pcmm_vs_mm_servicereqatt_5gs_increase as float64)
+when 'service_request_failure_ratio__failure_rate' then  round(safe_cast(safe_divide((pcmm_vs_mm_servicereqatt_5gs_increase   - pcmm_vs_mm_servicereqsucc_5gs_increase   - pcmm_vs_mm_servicereqrejthrottle_5gs_increase)     ,pcmm_vs_mm_servicereqatt_5gs_increase)  * 100 as float64),4)
+when '5gs_increase_to_eps_irat_handover_failure_ratio__attempts' then safe_cast(pcmm_vs_ho_5gstoepsn26att_5gs_increase as float64)
+when '5gs_increase_to_eps_irat_handover_failure_ratio__failure_rate' then  round(safe_cast(safe_divide((pcmm_vs_ho_5gstoepsn26att_5gs_increase  - pcmm_vs_ho_5gstoepsn26succ_5gs_increase ) ,pcmm_vs_ho_5gstoepsn26att_5gs_increase)  * 100 as float64),4)
+when '5gs_increase_to_epsfb_handover_failure_ratio__attempts' then safe_cast(pcmm_vs_ho_5gstoepsn26epsfallbackatt_5gs_increase as float64)
+when '5gs_increase_to_epsfb_handover_failure_ratio__failure_rate' then  round(safe_cast(safe_divide((pcmm_vs_ho_5gstoepsn26epsfallbackatt_5gs_increase  - pcmm_vs_ho_5gstoepsn26epsfallbacksucc_5gs_increase) ,pcmm_vs_ho_5gstoepsn26epsfallbackatt_5gs_increase)  * 100 as float64),4)
+when 'eps_to_5gs_increase_handover_failure_ratio__attempts' then safe_cast(pcmm_vs_ho_epsto5gsn26att_5gs_increase as float64)
+when 'eps_to_5gs_increase_handover_failure_ratio__failure_rate' then  round(safe_cast(safe_divide((pcmm_vs_ho_epsto5gsn26att_5gs_increase  - pcmm_vs_ho_epsto5gsn26succ_5gs_increase   ),pcmm_vs_ho_epsto5gsn26att_5gs_increase ) * 100 as float64),4)
+when 'mme_block_listed__mme_blocked' then safe_cast(pcmm_vs_ho_n26tempblockedtargetmme_5gs_increase as float64)
+when 'nrf_discover_(all_nfs)__attempts' then safe_cast(pcmm_vs_nrf_nfdiscoveratt_5gs_increase as float64)
+when 'nrf_discover_(all_nfs)__failure_rate' then  round(safe_cast(safe_divide((pcmm_vs_nrf_nfdiscoveratt_5gs_increase   - pcmm_vs_nrf_nfdiscoversucc_5gs_increase)    ,pcmm_vs_nrf_nfdiscoveratt_5gs_increase)  * 100 as float64),4)
+when 'ausf_post_ue_authentication_authenticate__attempts' then safe_cast(pcmm_vs_ausf_authinfoatt_5gs_increase as float64)
+when 'ausf_post_ue_authentication_authenticate__failure_rate' then  round(safe_cast(safe_divide((pcmm_vs_ausf_authinfoatt_5gs_increase- pcmm_vs_ausf_authinfosucc_5gs_increase),pcmm_vs_ausf_authinfoatt_5gs_increase ) * 100 as float64),4)
+when 'ausf_put_ue_authentication_authenticate__attempts' then safe_cast(pcmm_vs_ausf_authcfmatt_5gs_increase as float64)
+when 'ausf_put_ue_authentication_authenticate__failure_rate' then  round(safe_cast(safe_divide((pcmm_vs_ausf_authcfmatt_5gs_increase   - pcmm_vs_ausf_authcfmsucc_5gs_increase),pcmm_vs_ausf_authcfmatt_5gs_increase )  * 100 as float64),4)
+when 'udm_put_nudm_uecm__attempts' then safe_cast(pcmm_vs_udm_uecmregistrationatt_5gs_increase as float64)
+when 'udm_put_nudm_uecm__failure_rate' then  round(safe_cast(safe_divide((pcmm_vs_udm_uecmregistrationatt_5gs_increase  - pcmm_vs_udm_uecmregistrationsucc_5gs_increase  ) ,pcmm_vs_udm_uecmregistrationatt_5gs_increase)  * 100 as float64),4)
+when 'udm_get_nudm_sdm__attempts' then safe_cast(pcmm_vs_udm_sdmgetatt_5gs_increase as float64)
+when 'udm_get_nudm_sdm__failure_rate' then  round(safe_cast(safe_divide((pcmm_vs_udm_sdmgetatt_5gs_increase   - pcmm_vs_udm_sdmgetsucc_5gs_increase )  ,pcmm_vs_udm_sdmgetatt_5gs_increase ) * 100 as float64),4)
+when 'udm_post_nudm_sdm__attempts' then safe_cast(pcmm_vs_udm_sdmsubscribeatt_5gs_increase as float64)
+when 'udm_post_nudm_sdm__failure_rate' then  round(safe_cast(safe_divide((pcmm_vs_udm_sdmsubscribeatt_5gs_increase   - pcmm_vs_udm_sdmsubscribesucc_5gs_increase)  , pcmm_vs_udm_sdmsubscribeatt_5gs_increase)  * 100 as float64),4)
+when 'am-pcf_post_npcf-am-policycontrol__attempts' then safe_cast(pcmm_vs_pcf_ampolicyassoccreatereq_5gs_increase as float64)
+when 'am-pcf_post_npcf-am-policycontrol__failure_rate' then  round(safe_cast(safe_divide((pcmm_vs_pcf_ampolicyassoccreatereq_5gs_increase   - pcmm_vs_pcf_ampolicyassoccreateresp_5gs_increase) ,pcmm_vs_pcf_ampolicyassoccreatereq_5gs_increase )* 100 as float64),4)
+when 'ue_policy_downlink/uplink_nas_transport__attempts' then safe_cast(pcmm_vs_transp_uepolicydownlinknastransportsent_5gs_increase as float64)
+when 'ue_policy_downlink/uplink_nas_transport__failure_rate' then  round(safe_cast(safe_divide((pcmm_vs_transp_uepolicydownlinknastransportsent_5gs_increase  - pcmm_vs_transp_uepolicyuplinknastransportrecv_5gs_increase) ,pcmm_vs_transp_uepolicydownlinknastransportsent_5gs_increase) * 100 as float64),4)
+when 'am-pcf_post_npcf-ue-policycontrol__attempts' then safe_cast(pcmm_vs_pcf_uepolicyassoccreatereq_5gs_increase as float64)
+when 'am-pcf_post_npcf-ue-policycontrol__failure_rate' then  round(safe_cast(safe_divide((pcmm_vs_pcf_uepolicyassoccreatereq_5gs_increase   - pcmm_vs_pcf_uepolicyassoccreateresp_5gs_increase) ,pcmm_vs_pcf_uepolicyassoccreatereq_5gs_increase)  * 100 as float64),4)
+when 'initial_context_setup_/_pdu_session_setup_request__attempts' then safe_cast(pcmm_vs_sm_pdusessionresourcesetupatt_5gs_increase as float64)
+when 'initial_context_setup_/_pdu_session_setup_request__failure_rate' then  round(safe_cast(safe_divide((pcmm_vs_sm_pdusessionresourcesetupatt_5gs_increase  - pcmm_vs_sm_pdusessionresourcesetupsucc_5gs_increase) ,pcmm_vs_sm_pdusessionresourcesetupatt_5gs_increase) * 100 as float64),4)
+when '5gmm_pdu_establishment_failed__cc90' then safe_cast(pcmm_vs_sm_pdusessionestablishfailedcc90_5gs_increase as float64)
+when 'smf_context_create_nsmf-pdusession__attempts' then safe_cast(pcmm_vs_smf_smcontextcreateatt_5gs_increase as float64)
+when 'smf_context_create_nsmf-pdusession__failure_rate' then  round(safe_cast(safe_divide((pcmm_vs_smf_smcontextcreateatt_5gs_increase   - pcmm_vs_smf_smcontextcreatesucc_5gs_increase),pcmm_vs_smf_smcontextcreateatt_5gs_increase)  * 100 as float64),4)
+when 'smf_context_update_nsmf-pdusession__attempts' then safe_cast(pcmm_vs_smf_smcontextupdateatt_5gs_increase as float64)
+when 'smf_context_update_nsmf-pdusession__failure_rate' then  round(safe_cast(safe_divide((pcmm_vs_smf_smcontextupdateatt_5gs_increase   - pcmm_vs_smf_smcontextupdatesucc_5gs_increase),pcmm_vs_smf_smcontextupdateatt_5gs_increase)  * 100 as float64),4)
+when 'smf_context_retrieve_nsmf-pdusession__attempts' then safe_cast(pcmm_vs_smf_smcontextretrieveatt_5gs_increase as float64)
+when 'smf_context_retrieve_nsmf-pdusession__failure_rate' then  round(safe_cast(safe_divide((pcmm_vs_smf_smcontextretrieveatt_5gs_increase   - pcmm_vs_smf_smcontextretrievesucc_5gs_increase),pcmm_vs_smf_smcontextretrieveatt_5gs_increase ) * 100 as float64),4)
+when 'smf_n1n2_namf-comm_transfer__attempts' then safe_cast(pcmm_vs_smf_n1n2messagetransferrequestrecv_5gs_increase as float64)
+when 'smf_n1n2_namf-comm_transfer__failure_rate' then  round(safe_cast(safe_divide((pcmm_vs_smf_n1n2messagetransferrequestrecv_5gs_increase  -  pcmm_vs_smf_n1n2messagetransferresponsesent_5gs_increase),pcmm_vs_smf_n1n2messagetransferrequestrecv_5gs_increase) * 100 as float64),4)
+when 'pcf_n1n2_namf-comm_subscribe__attempts' then safe_cast(pcmm_vs_pcf_n1n2messagesubscriberequestrecv_5gs_increase as float64)
+when 'pcf_n1n2_namf-comm_subscribe__failure_rate' then  round(safe_cast(safe_divide((pcmm_vs_pcf_n1n2messagesubscriberequestrecv_5gs_increase  -  pcmm_vs_pcf_n1n2messagesubscriberesponsesent_5gs_increase  ),pcmm_vs_pcf_n1n2messagesubscriberequestrecv_5gs_increase)  * 100 as float64),4)
+when 'pcf_n1n2_namf-comm_transfer__attempts' then safe_cast(pcmm_vs_pcf_n1n2messagetransferrequestrecv_5gs_increase as float64)
+when 'pcf_n1n2_namf-comm_transfer__failure_rate' then  round(safe_cast(safe_divide((pcmm_vs_pcf_n1n2messagetransferrequestrecv_5gs_increase  -  pcmm_vs_pcf_n1n2messagetransferresponsesent_5gs_increase)   ,pcmm_vs_pcf_n1n2messagetransferrequestrecv_5gs_increase) * 100 as float64),4)
+
+end
+ as value
+from (select
+event_time,
+vendor,
+fqdn,
+trans_dt,
+max(if(lower(metric_name)="pcmm_vs_mm_reginitrejcc6_5gs",safe_cast(metric_increase_value as int64),0)) as pcmm_vs_mm_reginitrejcc6_5gs_increase,
+max(if(lower(metric_name)="pcmm_vs_mm_reginteriwkrejcc27_5gs",safe_cast(metric_increase_value as int64),0)) as pcmm_vs_mm_reginteriwkrejcc27_5gs_increase,
+max(if(lower(metric_name)="pcmm_vs_mm_reginitrejcc11_5gs",safe_cast(metric_increase_value as int64),0)) as pcmm_vs_mm_reginitrejcc11_5gs_increase,
+max(if(lower(metric_name)="pcmm_vs_sm_pdusessionestablishfailedcc90_5gs",safe_cast(metric_increase_value as int64),0)) as pcmm_vs_sm_pdusessionestablishfailedcc90_5gs_increase,
+max(if(lower(metric_name)="pcmm_vs_mm_reginteriwkrejcc6_5gs",safe_cast(metric_increase_value as int64),0)) as pcmm_vs_mm_reginteriwkrejcc6_5gs_increase,
+max(if(lower(metric_name)="pcmm_vs_udm_uecmregistrationatt_5gs",safe_cast(metric_increase_value as int64),0)) as pcmm_vs_udm_uecmregistrationatt_5gs_increase,
+max(if(lower(metric_name)="pcmm_vs_mm_reginteriwkrejcc111_5gs",safe_cast(metric_increase_value as int64),0)) as pcmm_vs_mm_reginteriwkrejcc111_5gs_increase,
+max(if(lower(metric_name)="pcmm_vs_udm_sdmgetsucc_5gs",safe_cast(metric_increase_value as int64),0)) as pcmm_vs_udm_sdmgetsucc_5gs_increase,
+max(if(lower(metric_name)="pcmm_vs_mm_reginitrejcc3_5gs",safe_cast(metric_increase_value as int64),0)) as pcmm_vs_mm_reginitrejcc3_5gs_increase,
+max(if(lower(metric_name)="pcmm_vs_mm_nbrregisteredsub_5gs",safe_cast(metric_sum_value as int64),0)) as pcmm_vs_mm_nbrregisteredsub_5gs_sum,
+max(if(lower(metric_name)="pcmm_vs_mm_reginitrejcc13_5gs",safe_cast(metric_increase_value as int64),0)) as pcmm_vs_mm_reginitrejcc13_5gs_increase,
+max(if(lower(metric_name)="pcmm_vs_mm_pagingatt_5gs",safe_cast(metric_increase_value as int64),0)) as pcmm_vs_mm_pagingatt_5gs_increase,
+max(if(lower(metric_name)="pcmm_vs_ho_5gstoepsn26att_5gs",safe_cast(metric_increase_value as int64),0)) as pcmm_vs_ho_5gstoepsn26att_5gs_increase,
+max(if(lower(metric_name)="pcmm_vs_udm_uecmregistrationsucc_5gs",safe_cast(metric_increase_value as int64),0)) as pcmm_vs_udm_uecmregistrationsucc_5gs_increase,
+max(if(lower(metric_name)="pcmm_vs_sm_pdusessionresourcesetupatt_5gs",safe_cast(metric_increase_value as int64),0)) as pcmm_vs_sm_pdusessionresourcesetupatt_5gs_increase,
+max(if(lower(metric_name)="pcmm_vs_udm_sdmsubscribeatt_5gs",safe_cast(metric_increase_value as int64),0)) as pcmm_vs_udm_sdmsubscribeatt_5gs_increase,
+max(if(lower(metric_name)="pcmm_vs_mm_reginteriwkrejcc9_5gs",safe_cast(metric_increase_value as int64),0)) as pcmm_vs_mm_reginteriwkrejcc9_5gs_increase,
+max(if(lower(metric_name)="pcmm_vs_mm_reginteriwkrejcc5_5gs",safe_cast(metric_increase_value as int64),0)) as pcmm_vs_mm_reginteriwkrejcc5_5gs_increase,
+max(if(lower(metric_name)="pcmm_vs_smf_smcontextretrieveatt_5gs",safe_cast(metric_increase_value as int64),0)) as pcmm_vs_smf_smcontextretrieveatt_5gs_increase,
+max(if(lower(metric_name)="pcmm_vs_ausf_authinfosucc_5gs",safe_cast(metric_increase_value as int64),0)) as pcmm_vs_ausf_authinfosucc_5gs_increase,
+max(if(lower(metric_name)="pcmm_vs_ho_epsto5gsn26succ_5gs",safe_cast(metric_increase_value as int64),0)) as pcmm_vs_ho_epsto5gsn26succ_5gs_increase,
+max(if(lower(metric_name)="pcmm_vs_mm_reginitrejcc12_5gs",safe_cast(metric_increase_value as int64),0)) as pcmm_vs_mm_reginitrejcc12_5gs_increase,
+max(if(lower(metric_name)="pcmm_vs_mm_reginteriwkrejcc11_5gs",safe_cast(metric_increase_value as int64),0)) as pcmm_vs_mm_reginteriwkrejcc11_5gs_increase,
+max(if(lower(metric_name)="pcmm_vs_mm_reginitrejcc111_5gs",safe_cast(metric_increase_value as int64),0)) as pcmm_vs_mm_reginitrejcc111_5gs_increase,
+max(if(lower(metric_name)="pcmm_vs_mm_regemcatt_5gs",safe_cast(metric_increase_value as int64),0)) as pcmm_vs_mm_regemcatt_5gs_increase,
+max(if(lower(metric_name)="pcmm_vs_mm_reginteriwkrejcc7_5gs",safe_cast(metric_increase_value as int64),0)) as pcmm_vs_mm_reginteriwkrejcc7_5gs_increase,
+max(if(lower(metric_name)="pcmm_vs_sm_pdusessionresourcesetupsucc_5gs",safe_cast(metric_increase_value as int64),0)) as pcmm_vs_sm_pdusessionresourcesetupsucc_5gs_increase,
+max(if(lower(metric_name)="pcmm_vs_smf_smcontextupdatesucc_5gs",safe_cast(metric_increase_value as int64),0)) as pcmm_vs_smf_smcontextupdatesucc_5gs_increase,
+max(if(lower(metric_name)="pcmm_vs_mm_reginitrejcc7_5gs",safe_cast(metric_increase_value as int64),0)) as pcmm_vs_mm_reginitrejcc7_5gs_increase,
+max(if(lower(metric_name)="pcmm_vs_mm_reginitrejcc9_5gs",safe_cast(metric_increase_value as int64),0)) as pcmm_vs_mm_reginitrejcc9_5gs_increase,
+max(if(lower(metric_name)="pcmm_vs_mm_reginteriwkatt_5gs",safe_cast(metric_increase_value as int64),0)) as pcmm_vs_mm_reginteriwkatt_5gs_increase,
+max(if(lower(metric_name)="pcmm_vs_mm_reginteriwkrejthrottle_5gs",safe_cast(metric_increase_value as int64),0)) as pcmm_vs_mm_reginteriwkrejthrottle_5gs_increase,
+max(if(lower(metric_name)="pcmm_vs_mm_reginitrejcc5_5gs",safe_cast(metric_increase_value as int64),0)) as pcmm_vs_mm_reginitrejcc5_5gs_increase,
+max(if(lower(metric_name)="pcmm_vs_ausf_authcfmsucc_5gs",safe_cast(metric_increase_value as int64),0)) as pcmm_vs_ausf_authcfmsucc_5gs_increase,
+max(if(lower(metric_name)="pcmm_vs_mm_reginitsucc_5gs",safe_cast(metric_increase_value as int64),0)) as pcmm_vs_mm_reginitsucc_5gs_increase,
+max(if(lower(metric_name)="pcmm_vs_nrf_nfdiscoveratt_5gs",safe_cast(metric_increase_value as int64),0)) as pcmm_vs_nrf_nfdiscoveratt_5gs_increase,
+max(if(lower(metric_name)="pcmm_vs_ho_epsto5gsn26att_5gs",safe_cast(metric_increase_value as int64),0)) as pcmm_vs_ho_epsto5gsn26att_5gs_increase,
+max(if(lower(metric_name)="pcmm_vs_mm_pagingsucc_5gs",safe_cast(metric_increase_value as int64),0)) as pcmm_vs_mm_pagingsucc_5gs_increase,
+max(if(lower(metric_name)="pcmm_vs_ho_5gstoepsn26epsfallbackatt_5gs",safe_cast(metric_increase_value as int64),0)) as pcmm_vs_ho_5gstoepsn26epsfallbackatt_5gs_increase,
+max(if(lower(metric_name)="pcmm_vs_udm_sdmsubscribesucc_5gs",safe_cast(metric_increase_value as int64),0)) as pcmm_vs_udm_sdmsubscribesucc_5gs_increase,
+max(if(lower(metric_name)="pcmm_vs_mm_reginitrejcc27_5gs",safe_cast(metric_increase_value as int64),0)) as pcmm_vs_mm_reginitrejcc27_5gs_increase,
+max(if(lower(metric_name)="pcmm_vs_smf_smcontextcreateatt_5gs",safe_cast(metric_increase_value as int64),0)) as pcmm_vs_smf_smcontextcreateatt_5gs_increase,
+max(if(lower(metric_name)="pcmm_vs_pcf_n1n2messagetransferresponsesent_5gs",safe_cast(metric_increase_value as int64),0)) as pcmm_vs_pcf_n1n2messagetransferresponsesent_5gs_increase,
+max(if(lower(metric_name)="pcmm_vs_ausf_authinfoatt_5gs",safe_cast(metric_increase_value as int64),0)) as pcmm_vs_ausf_authinfoatt_5gs_increase,
+max(if(lower(metric_name)="pcmm_vs_mm_reginteriwkrejcc22_5gs",safe_cast(metric_increase_value as int64),0)) as pcmm_vs_mm_reginteriwkrejcc22_5gs_increase,
+max(if(lower(metric_name)="pcmm_vs_smf_n1n2messagetransferrequestrecv_5gs",safe_cast(metric_increase_value as int64),0)) as pcmm_vs_smf_n1n2messagetransferrequestrecv_5gs_increase,
+max(if(lower(metric_name)="pcmm_vs_mm_reginteriwkrejcc13_5gs",safe_cast(metric_increase_value as int64),0)) as pcmm_vs_mm_reginteriwkrejcc13_5gs_increase,
+max(if(lower(metric_name)="pcmm_vs_mm_reginitatt_5gs",safe_cast(metric_increase_value as int64),0)) as pcmm_vs_mm_reginitatt_5gs_increase,
+max(if(lower(metric_name)="pcmm_vs_smf_smcontextcreatesucc_5gs",safe_cast(metric_increase_value as int64),0)) as pcmm_vs_smf_smcontextcreatesucc_5gs_increase,
+max(if(lower(metric_name)="pcmm_vs_smf_smcontextupdateatt_5gs",safe_cast(metric_increase_value as int64),0)) as pcmm_vs_smf_smcontextupdateatt_5gs_increase,
+max(if(lower(metric_name)="pcmm_vs_ho_n26tempblockedtargetmme_5gs",safe_cast(metric_increase_value as int64),0)) as pcmm_vs_ho_n26tempblockedtargetmme_5gs_increase,
+max(if(lower(metric_name)="pcmm_vs_mm_servicereqatt_5gs",safe_cast(metric_increase_value as int64),0)) as pcmm_vs_mm_servicereqatt_5gs_increase,
+max(if(lower(metric_name)="pcmm_vs_smf_smcontextretrievesucc_5gs",safe_cast(metric_increase_value as int64),0)) as pcmm_vs_smf_smcontextretrievesucc_5gs_increase,
+max(if(lower(metric_name)="pcmm_vs_udm_sdmgetatt_5gs",safe_cast(metric_increase_value as int64),0)) as pcmm_vs_udm_sdmgetatt_5gs_increase,
+max(if(lower(metric_name)="pcmm_vs_pcf_n1n2messagetransferrequestrecv_5gs",safe_cast(metric_increase_value as int64),0)) as pcmm_vs_pcf_n1n2messagetransferrequestrecv_5gs_increase,
+max(if(lower(metric_name)="pcmm_vs_mm_servicereqsucc_5gs",safe_cast(metric_increase_value as int64),0)) as pcmm_vs_mm_servicereqsucc_5gs_increase,
+max(if(lower(metric_name)="pcmm_vs_pcf_ampolicyassoccreatereq_5gs",safe_cast(metric_increase_value as int64),0)) as pcmm_vs_pcf_ampolicyassoccreatereq_5gs_increase,
+max(if(lower(metric_name)="pcmm_vs_mm_reginteriwkrejcc12_5gs",safe_cast(metric_increase_value as int64),0)) as pcmm_vs_mm_reginteriwkrejcc12_5gs_increase,
+max(if(lower(metric_name)="pcmm_vs_pcf_n1n2messagesubscriberesponsesent_5gs",safe_cast(metric_increase_value as int64),0)) as pcmm_vs_pcf_n1n2messagesubscriberesponsesent_5gs_increase,
+max(if(lower(metric_name)="pcmm_vs_n2_nbrconnectedgnodeb_5gs",safe_cast(metric_sum_value as int64),0)) as pcmm_vs_n2_nbrconnectedgnodeb_5gs_sum,
+max(if(lower(metric_name)="pcmm_vs_pcf_ampolicyassoccreateresp_5gs",safe_cast(metric_increase_value as int64),0)) as pcmm_vs_pcf_ampolicyassoccreateresp_5gs_increase,
+max(if(lower(metric_name)="pcmm_vs_mm_reginteriwksucc_5gs",safe_cast(metric_increase_value as int64),0)) as pcmm_vs_mm_reginteriwksucc_5gs_increase,
+max(if(lower(metric_name)="pcmm_vs_ho_5gstoepsn26epsfallbacksucc_5gs",safe_cast(metric_increase_value as int64),0)) as pcmm_vs_ho_5gstoepsn26epsfallbacksucc_5gs_increase,
+max(if(lower(metric_name)="pcmm_vs_transp_uepolicydownlinknastransportsent_5gs",safe_cast(metric_increase_value as int64),0)) as pcmm_vs_transp_uepolicydownlinknastransportsent_5gs_increase,
+max(if(lower(metric_name)="pcmm_vs_pcf_n1n2messagesubscriberequestrecv_5gs",safe_cast(metric_increase_value as int64),0)) as pcmm_vs_pcf_n1n2messagesubscriberequestrecv_5gs_increase,
+max(if(lower(metric_name)="pcmm_vs_mm_reginitrejcc15_5gs",safe_cast(metric_increase_value as int64),0)) as pcmm_vs_mm_reginitrejcc15_5gs_increase,
+max(if(lower(metric_name)="pcmm_vs_smf_n1n2messagetransferresponsesent_5gs",safe_cast(metric_increase_value as int64),0)) as pcmm_vs_smf_n1n2messagetransferresponsesent_5gs_increase,
+max(if(lower(metric_name)="pcmm_vs_mm_reginitrejcc22_5gs",safe_cast(metric_increase_value as int64),0)) as pcmm_vs_mm_reginitrejcc22_5gs_increase,
+max(if(lower(metric_name)="pcmm_vs_ausf_authcfmatt_5gs",safe_cast(metric_increase_value as int64),0)) as pcmm_vs_ausf_authcfmatt_5gs_increase,
+max(if(lower(metric_name)="pcmm_vs_mm_reginitrejthrottle_5gs",safe_cast(metric_increase_value as int64),0)) as pcmm_vs_mm_reginitrejthrottle_5gs_increase,
+max(if(lower(metric_name)="pcmm_vs_ho_5gstoepsn26succ_5gs",safe_cast(metric_increase_value as int64),0)) as pcmm_vs_ho_5gstoepsn26succ_5gs_increase,
+max(if(lower(metric_name)="pcmm_vs_transp_uepolicyuplinknastransportrecv_5gs",safe_cast(metric_increase_value as int64),0)) as pcmm_vs_transp_uepolicyuplinknastransportrecv_5gs_increase,
+max(if(lower(metric_name)="pcmm_vs_mm_servicereqrejthrottle_5gs",safe_cast(metric_increase_value as int64),0)) as pcmm_vs_mm_servicereqrejthrottle_5gs_increase,
+max(if(lower(metric_name)="pcmm_vs_mm_reginitrejurrbthrottle_5gs",safe_cast(metric_increase_value as int64),0)) as pcmm_vs_mm_reginitrejurrbthrottle_5gs_increase,
+max(if(lower(metric_name)="pcmm_vs_nrf_nfdiscoversucc_5gs",safe_cast(metric_increase_value as int64),0)) as pcmm_vs_nrf_nfdiscoversucc_5gs_increase,
+max(if(lower(metric_name)="pcmm_vs_pcf_uepolicyassoccreatereq_5gs",safe_cast(metric_increase_value as int64),0)) as pcmm_vs_pcf_uepolicyassoccreatereq_5gs_increase,
+max(if(lower(metric_name)="pcmm_vs_pcf_uepolicyassoccreateresp_5gs",safe_cast(metric_increase_value as int64),0)) as pcmm_vs_pcf_uepolicyassoccreateresp_5gs_increase
+from `vz-it-np-gudv-dev-dtwndo-0.aid_nwperf_aether_core_tbls.aether_amf_performance`
+group by
+event_time,
+vendor,
+fqdn,
+trans_dt)t
+LEFT JOIN 
+`vz-it-np-gudv-dev-dtwndo-0.aid_nwperf_aether_core_tbls.mapping_table`
+on SUBSRING(t.fqdn, 1,8)=m.fqdn_substring
+cross join
+ unnest(['registered_users','gnb_connected','initial_registration_failure_rate__attempts','initial_registration_failure_rate__failure_rate','initial_registration_failure_rate__emergency_attempts','initial_registration_failures__cc7-5gs_increase_services_not_allowed','initial_registration_failures__cc5-pei_not_accepted','initial_registration_failures__cc6-illegal_me','initial_registration_failures__cc3-illegal_ue','initial_registration_failures__cc11-plmn_not_allowed','initial_registration_failures__cc12-tracking_area_not_allowed','initial_registration_failures__cc13-roaming_not_allowed','initial_registration_failures__cc15-no_suitable_cells_in_ta','initial_registration_failures__cc22-5gmm_congestion','initial_registration_failures__cc27-n1_mode_not_allowed','initial_registration_failures__cc111-protocol_error','initial_registration_failures__initial_access_throttle','initial_registration_failures__ue_registration_throttle','initial_registration_failures__cc9-ue_identity_cannot_be_derived','interworking_registration_failure_rate__attempts','interworking_registration_failure_rate__failure_rate','interworking_registration_failures__cc7-5gs_increase_services_not_allowed','interworking_registration_failures__cc5-pei_not_accepted','interworking_registration_failures__cc6-illegal_me','interworking_registration_failures__cc11-plmn_not_allowed','interworking_registration_failures__cc12-tracking_area_not_allowed','interworking_registration_failures__cc13-roaming_not_allowed','interworking_registration_failures__cc15-no_suitable_cells_in_ta','interworking_registration_failures__cc22-5gmm_congestion','interworking_registration_failures__cc27-n1_mode_not_allowed','interworking_registration_failures__cc111-protocol_error','interworking_registration_failures__initial_access_throttle','interworking_registration_failures__ue_registration_throttle','interworking_registration_failures__cc9-ue_cannot_be_derived','amf_paging_ratio__attempts','amf_paging_ratio__failure_rate','service_request_failure_ratio__attempts','service_request_failure_ratio__failure_rate','5gs_increase_to_eps_irat_handover_failure_ratio__attempts','5gs_increase_to_eps_irat_handover_failure_ratio__failure_rate','5gs_increase_to_epsfb_handover_failure_ratio__attempts','5gs_increase_to_epsfb_handover_failure_ratio__failure_rate','eps_to_5gs_increase_handover_failure_ratio__attempts','eps_to_5gs_increase_handover_failure_ratio__failure_rate','mme_block_listed__mme_blocked','nrf_discover_(all_nfs)__attempts','nrf_discover_(all_nfs)__failure_rate','ausf_post_ue_authentication_authenticate__attempts','ausf_post_ue_authentication_authenticate__failure_rate','ausf_put_ue_authentication_authenticate__attempts','ausf_put_ue_authentication_authenticate__failure_rate','udm_put_nudm_uecm__attempts','udm_put_nudm_uecm__failure_rate','udm_get_nudm_sdm__attempts','udm_get_nudm_sdm__failure_rate','udm_post_nudm_sdm__attempts','udm_post_nudm_sdm__failure_rate','am-pcf_post_npcf-am-policycontrol__attempts','am-pcf_post_npcf-am-policycontrol__failure_rate','ue_policy_downlink/uplink_nas_transport__attempts','ue_policy_downlink/uplink_nas_transport__failure_rate','am-pcf_post_npcf-ue-policycontrol__attempts','am-pcf_post_npcf-ue-policycontrol__failure_rate','initial_context_setup_/_pdu_session_setup_request__attempts','initial_context_setup_/_pdu_session_setup_request__failure_rate','5gmm_pdu_establishment_failed__cc90','smf_context_create_nsmf-pdusession__attempts','smf_context_create_nsmf-pdusession__failure_rate','smf_context_update_nsmf-pdusession__attempts','smf_context_update_nsmf-pdusession__failure_rate','smf_context_retrieve_nsmf-pdusession__attempts','smf_context_retrieve_nsmf-pdusession__failure_rate','smf_n1n2_namf-comm_transfer__attempts','smf_n1n2_namf-comm_transfer__failure_rate','pcf_n1n2_namf-comm_subscribe__attempts','pcf_n1n2_namf-comm_subscribe__failure_rate','pcf_n1n2_namf-comm_transfer__attempts','pcf_n1n2_namf-comm_transfer__failure_rate']) as metric_name);
