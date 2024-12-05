@@ -86,4 +86,16 @@ def main():
                     "function": function,
                     "metric_name": metric_name,
                     "sum": aggregates.get("sum", "N/A"),
-                    "increase": aggregates.get
+                    "increase": aggregates.get("increase", "N/A"),
+                })
+
+    # Save to CSV
+    if all_results:
+        df = pd.DataFrame(all_results)
+        print("Saving data to metrics_aggregates.csv")
+        df.to_csv("metrics_aggregates.csv", index=False)
+    else:
+        print("No data fetched.")
+
+if __name__ == "__main__":
+    main()
