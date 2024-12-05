@@ -1,0 +1,105 @@
+import requests
+import pandas as pd
+from datetime import datetime, timedelta
+
+# Grafana API details
+GRAFANA_URL = "https://us.aether.nss.vzwnet.com/gem/prometheus/api/v1"
+API_KEYS = {
+    "AMF": "ZXJpY3Nzb24tYW1mOk5XY3RZMjl5WlMxa1lYUmhMWEJ5YjJSMVkzUXRjbVZoWkRveU4zZ3JYekV5TmlnclFDWXpNSHdxTWpNd1BDcDBSa0U9",
+    "UPF": "ZXJpY3Nzb24tdXBmOk5XY3RZMjl5WlMxa1lYUmhMWEJ5YjJSMVkzUXRjbVZoWkRveU4zZ3JYekV5TmlnclFDWXpNSHdxTWpNd1BDcDBSa0U9",
+    "SMF": "ZXJpY3Nzb24tc21mOk5XY3RZMjl5WlMxa1lYUmhMWEJ5YjJSMVkzUXRjbVZoWkRveU4zZ3JYekV5TmlnclFDWXpNSHdxTWpNd1BDcDBSa0U9",
+}
+FUNCTIONS = ["AMF", "SMF", "UPF"]
+
+# Time range for historical data (Epoch time)
+START_TIME = 1717632000  # Replace with the desired start time
+END_TIME = 1733356800    # Replace with the desired end time
+STEP = "60m"  # 1-hour interval
+
+# Function to fetch all metric names dynamically
+def fetch_all_metrics(function):
+    headers = {"Authorization": f"Bearer {API_KEYS[function]}"}
+    url = f"{GRAFANA_URL}/label/__name__/values"
+    response = requests.get(url, headers=headers)
+
+    if response.status_code != 200:
+        print(f"Failed to fetch metrics for {function}: {response.status_code} - {response.text}")
+        return []
+
+    return response.json().get("data", [])
+
+# Function to fetch data for a specific metric
+def fetch_metric_data(function, metric_name):
+    headers = {"Authorization": f"Bearer {API_KEYS[function]}"}
+    params = {
+        "query": metric_name,
+        "start": START_TIME,
+        "end": END_TIME,
+        "step": STEP,
+    }
+    url = f"{GRAFANA_URL}/query_range"
+    response = requests.get(url, headers=headers, params=params)
+
+    if response.status_code != 200:
+        print(f"Failed to fetch data for {metric_name} under {function}: {response.status_code} - {response.text}")
+        return None
+
+    return response.json()
+
+# Function to calculate increase, sum, and rate
+def calculate_metrics(raw_data):
+    metrics = []
+    for result in raw_data.get("data", {}).get("result", []):
+        metric_name = result["metric"].get("__name__", "unknown")
+        values = result["values"]
+
+        for i in range(1, len(values)):
+            prev_time, prev_value = values[i - 1]
+            curr_time, curr_value = values[i]
+            try:
+                prev_value = float(prev_value)
+                curr_value = float(curr_value)
+                increase = max(0, curr_value - prev_value)
+                rate = increase / (3600)  # Assuming step = 1 hour
+                metrics.append({
+                    "timestamp": curr_time,
+                    "metric_name": metric_name,
+                    "sum_value": curr_value,
+                    "increase_value": increase,
+                    "rate_value": rate,
+                })
+            except ValueError:
+                continue
+    return metrics
+
+# Main script
+def main():
+    all_metrics_data = []
+
+    for function in FUNCTIONS:
+        print(f"Fetching metric names for function: {function}")
+        metric_names = fetch_all_metrics(function)
+
+        if not metric_names:
+            print(f"No metrics found for function: {function}")
+            continue
+
+        print(f"Found {len(metric_names)} metrics for {function}")
+
+        for metric_name in metric_names:
+            print(f"Fetching data for metric: {metric_name}")
+            raw_data = fetch_metric_data(function, metric_name)
+            if raw_data:
+                metrics = calculate_metrics(raw_data)
+                all_metrics_data.extend(metrics)
+
+    # Convert all metrics data to a DataFrame
+    if all_metrics_data:
+        df = pd.DataFrame(all_metrics_data)
+        print("Saving data to metrics_data.csv")
+        df.to_csv("metrics_data.csv", index=False)
+    else:
+        print("No data fetched.")
+
+if __name__ == "__main__":
+    main()
